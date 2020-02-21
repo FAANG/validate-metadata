@@ -3,6 +3,7 @@ from metadata_validation_conversion.constants import ALLOWED_SAMPLES_TYPES, \
 from metadata_validation_conversion.helpers import convert_to_snake_case
 from .helpers import get_record_name, get_validation_results_structure
 from .get_biosample_data_async import fetch_biosample_data_for_ids
+import json
 
 
 class RelationshipsIssues:
@@ -58,6 +59,12 @@ class RelationshipsIssues:
             if relationship_name == 'child_of':
                 relationships[record_name]['organism'] = record['organism'][
                     'text']
+                relationships[record_name]['organism_ontology'] = record[
+                    'organism']['term']
+            if name == 'aquaculture_specimen_from_organism':
+                relationships[record_name]['fish'] = True
+            else:
+                relationships[record_name]['fish'] = False
         return relationships, biosample_ids
 
     def check_relationships(self, relationships, biosample_data):
@@ -88,6 +95,10 @@ class RelationshipsIssues:
                         current_material = convert_to_snake_case(v['material'])
                         relation_material = convert_to_snake_case(
                             relationships_to_check[relation]['material'])
+                        if v['fish'] is True:
+                            self.organism_is_fish(
+                                relationships_to_check[relation][
+                                    'organism_ontology'])
                         if current_material == 'organism' and \
                                 relation_material == 'organism':
                             self.check_parents(
@@ -104,6 +115,10 @@ class RelationshipsIssues:
                 tmp['type']['errors'].extend(errors)
             issues_to_return[name].append(tmp)
         return issues_to_return
+
+    @staticmethod
+    def organism_is_fish(ontology_id):
+        print(ontology_id)
 
     @staticmethod
     def check_parents(current_organism_name, current_organism_value,
