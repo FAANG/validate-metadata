@@ -10,6 +10,8 @@ ORGANISM_URL = f"{BASE_URL}type/samples/" \
                f"faang_samples_organism.metadata_rules.json"
 SPECIMEN_FROM_ORGANISM_URL = f"{BASE_URL}type/samples/" \
                              f"faang_samples_specimen.metadata_rules.json"
+# TODO: add rules for specimen from organism is a child of NCBITaxon_32443
+SPECIMEN_FROM_ORGANISM_FISH_URL = ""
 POOL_OF_SPECIMENS_URL = f"{BASE_URL}type/samples/" \
                         f"faang_samples_pool_of_specimens.metadata_rules.json"
 CELL_SPECIMEN_URL = f"{BASE_URL}type/samples/" \
@@ -51,6 +53,7 @@ WS_URL = "ws://127.0.0.1:8000/ws/submission/test_task/"
 ALLOWED_SHEET_NAMES = {
     'organism': ORGANISM_URL,
     'specimen from organism': SPECIMEN_FROM_ORGANISM_URL,
+    'aquaculture specimen from organism': SPECIMEN_FROM_ORGANISM_FISH_URL,
     'pool of specimens': POOL_OF_SPECIMENS_URL,
     'cell specimen': CELL_SPECIMEN_URL,
     'cell culture': CELL_CULTURE_URL,
