@@ -3,7 +3,7 @@ from metadata_validation_conversion.constants import ALLOWED_SAMPLES_TYPES, \
 from metadata_validation_conversion.helpers import convert_to_snake_case
 from .helpers import get_record_name, get_validation_results_structure
 from .get_biosample_data_async import fetch_biosample_data_for_ids
-import json
+import requests
 
 
 class RelationshipsIssues:
@@ -96,9 +96,12 @@ class RelationshipsIssues:
                         relation_material = convert_to_snake_case(
                             relationships_to_check[relation]['material'])
                         if v['fish'] is True:
-                            self.organism_is_fish(
+                            is_fish = self.organism_is_fish(
                                 relationships_to_check[relation][
                                     'organism_ontology'])
+                            if not is_fish:
+                                errors.append('Relatioships part: organism is '
+                                              'not fish')
                         if current_material == 'organism' and \
                                 relation_material == 'organism':
                             self.check_parents(
@@ -118,7 +121,23 @@ class RelationshipsIssues:
 
     @staticmethod
     def organism_is_fish(ontology_id):
-        print(ontology_id)
+        is_fish = False
+        response = requests.get(f"https://www.ebi.ac.uk/ols/api/ontologies/"
+                                f"ncbitaxon/hierarchicalAncestors?id="
+                                f"{ontology_id}").json()
+        while True:
+            for record in response['_embedded']['terms']:
+                if record['obo_id'] == 'NCBITaxon:32443':
+                    is_fish = True
+                    break
+            response = requests.get(response['_links']['next']['href']).json()
+            if 'next' not in response['_links']:
+                for record in response['_embedded']['terms']:
+                    if record['obo_id'] == 'NCBITaxon:32443':
+                        is_fish = True
+                        break
+                break
+        return is_fish
 
     @staticmethod
     def check_parents(current_organism_name, current_organism_value,
